@@ -48,20 +48,6 @@ filtro["mes"] = filtro["date"].dt.strftime("%b/%y")  # Ex: "Jun/25"
 receita_mes = filtro.groupby("mes")["price"].sum().sort_index()
 st.bar_chart(receita_mes)
 
-# Gráfico de pizza dos SKUs mais vendidos
-st.subheader("Distribuição por SKU")
-sku_counts = filtro["sku"].dropna().value_counts().head(10)
-st.plotly_chart({
-    "data": [{
-        "type": "pie",
-        "labels": sku_counts.index,
-        "values": sku_counts.values,
-        "hole": 0.4
-    }],
-    "layout": {
-        "title": "Top 10 SKUs Vendidos"
-    }
-})
 
 
 # Extrair corretamente os componentes da SKU
