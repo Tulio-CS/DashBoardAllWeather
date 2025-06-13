@@ -79,16 +79,18 @@ st.subheader("Distribuição por Tamanho")
 fig = px.pie(df, names='tamanho', title='Vendas por Tamanho', hole=0.4)
 st.plotly_chart(fig)
 
-st.subheader("Top 10 SKUs Vendidas")
+st.subheader("Top 10 SKUs - Percentage")
 
-sku_counts = df['sku'].value_counts().head(10).reset_index()
-sku_counts.columns = ['sku', 'vendas']
+sku_counts = df['sku'].value_counts(normalize=True).head(10).reset_index()
+sku_counts.columns = ['sku', 'percentage']
+sku_counts['percentage'] = sku_counts['percentage'] * 100  # Convert to %
 
 fig = px.bar(sku_counts, 
-              x='vendas', y='sku', 
-              orientation='h', 
-              title='Top 10 SKUs Vendidas',
-              text='vendas')
+              x='percentage', y='sku', 
+              orientation='h',
+              title='Top 10 SKUs - Percentage',
+              text=sku_counts['percentage'].apply(lambda x: f'{x:.1f}%'))
 
-fig.update_layout(yaxis={'categoryorder':'total ascending'})  # Ordena do menor para maior na horizontal
+fig.update_layout(yaxis={'categoryorder':'total ascending'})
 st.plotly_chart(fig)
+
