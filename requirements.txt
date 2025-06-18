@@ -1,9 +1,10 @@
 streamlit
 pandas
+plotly
+supabase
+python-dotenv
 openai
 langchain
 langchain-openai
 faiss-cpu
-supabase
-plotly
 dotenv
