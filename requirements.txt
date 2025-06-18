@@ -9,3 +9,4 @@ faiss-cpu
 dotenv
 langchain
 langchain-community
+tabulate
