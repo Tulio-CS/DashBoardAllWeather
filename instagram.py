@@ -16,7 +16,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 def instagram_page():
     st.title('Dashboard Instagram - All Weather')
 
-    @st.cache_data
+    @st.cache_data(ttl=600)
     def carregar_dados_instagram():
         response = supabase.table("Posts").select("*").execute()
         df = pd.DataFrame(response.data)

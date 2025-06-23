@@ -18,7 +18,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 def shopify_page():
     st.title("Dashboard Shopify - All Weather")
 
-    @st.cache_data
+    @st.cache_data(ttl=600)
     def carregar_dados():
         response = supabase.table("Shopify").select("*").execute()
         df = pd.DataFrame(response.data)

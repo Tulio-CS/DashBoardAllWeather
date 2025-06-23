@@ -16,7 +16,7 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 def analytics_page():
     st.title('Dashboard Google Analytics - All Weather')
 
-    @st.cache_data
+    @st.cache_data(ttl=600)
     def carregar_dados_google():
         response = supabase.table("googleAnalytics").select("*").execute()
         df = pd.DataFrame(response.data)
