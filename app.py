@@ -86,4 +86,4 @@ st.markdown("""
 
 st.markdown("---")
 
-st.caption("🌀 Projeto desenvolvido por Túlio · All Weather © 2025")
+st.caption("Projeto desenvolvido por Túlio · All Weather © 2025")
