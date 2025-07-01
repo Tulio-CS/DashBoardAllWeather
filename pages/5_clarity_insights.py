@@ -92,7 +92,7 @@ scroll_avg = df_scroll.groupby("date").apply(
     lambda x: (x["Scroll depth"] * x["No of visitors"]).sum() / x["No of visitors"].sum()
 ).reset_index(name="avg_scroll")
 
-st.subheader("📈 Profundidade média de scroll por dia")
+st.subheader("Profundidade média de scroll por dia")
 fig_avg_scroll = px.line(
     scroll_avg,
     x="date",
@@ -151,3 +151,5 @@ st.dataframe(df_insights.sort_values("sessionsCount", ascending=False).reset_ind
 
 st.subheader("Tabela de Scroll")
 st.dataframe(df_scroll.sort_values("Scroll depth").reset_index(drop=True), use_container_width=True)
+
+
