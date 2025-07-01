@@ -73,6 +73,36 @@ fig_scroll = px.bar(
 )
 st.plotly_chart(fig_scroll, use_container_width=True)
 
+st.subheader("Percentual de visitantes que chegaram até pelo menos X% de scroll")
+
+# Ordenar por profundidade decrescente (começar do fundo da página)
+df_scroll_pct_acum = df_scroll.sort_values("Scroll depth", ascending=False).copy()
+
+# Cálculo do acumulado
+df_scroll_pct_acum["Visitantes acumulados"] = df_scroll_pct_acum["No of visitors"].cumsum()
+
+# Calcular percentual sobre o total
+total_visitas = df_scroll_pct_acum["No of visitors"].sum()
+df_scroll_pct_acum["% acumulado"] = (df_scroll_pct_acum["Visitantes acumulados"] / total_visitas) * 100
+
+# Reordenar crescente para o gráfico
+df_scroll_pct_acum = df_scroll_pct_acum.sort_values("Scroll depth")
+
+# Plotar gráfico de linha
+fig_pct_acumulado = px.line(
+    df_scroll_pct_acum,
+    x="Scroll depth",
+    y="% acumulado",
+    title="% de visitantes que chegaram até pelo menos cada faixa de scroll",
+    labels={"Scroll depth": "Scroll (%)", "% acumulado": "Visitantes (%)"},
+    markers=True
+)
+fig_pct_acumulado.update_traces(mode="lines+markers")
+fig_pct_acumulado.update_layout(yaxis_ticksuffix="%")
+
+st.plotly_chart(fig_pct_acumulado, use_container_width=True)
+
+
 # Gráfico scroll: Taxa de abandono
 st.subheader("Taxa de Abandono por profundidade")
 fig_drop = px.line(
