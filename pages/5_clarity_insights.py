@@ -6,8 +6,8 @@ from supabase import create_client
 import os
 
 # Configuração da página
-st.set_page_config(page_title="Clarity Insights - Novas Visões", layout="wide")
-st.title("🔎 Clarity Insights · Novas Visualizações")
+st.set_page_config(page_title="Clarity Insights", layout="wide")
+st.title("Clarity Insights")
 
 # Conectar ao Supabase
 load_dotenv()
