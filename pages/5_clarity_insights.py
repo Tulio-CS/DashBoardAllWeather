@@ -136,6 +136,66 @@ fig_drop = px.line(
 st.plotly_chart(fig_drop, use_container_width=True)
 
 
+
+st.subheader("Análise de Proporções por Faixas de Scroll (10 em 10%)")
+
+resultados = []
+
+for start in range(0, 100, 10):
+    end = start + 10
+
+    # Filtrar visitantes na faixa
+    faixa = df_combined_scroll[
+        (df_combined_scroll["Scroll depth"] >= start) &
+        (df_combined_scroll["Scroll depth"] < end)
+    ]
+
+    # Totais por período
+    total_a = df_combined_scroll[df_combined_scroll["Período"] == "Período A"]["No of visitors"].sum()
+    total_b = df_combined_scroll[df_combined_scroll["Período"] == "Período B"]["No of visitors"].sum()
+
+    faixa_a = faixa[faixa["Período"] == "Período A"]["No of visitors"].sum()
+    faixa_b = faixa[faixa["Período"] == "Período B"]["No of visitors"].sum()
+
+    if total_a > 0 and total_b > 0:
+        prop_a = faixa_a / total_a
+        prop_b = faixa_b / total_b
+
+        count = [faixa_a, faixa_b]
+        nobs = [total_a, total_b]
+
+        if all(n > 0 for n in count):
+            stat, pval = proportions_ztest(count, nobs)
+
+            if pval < 0.05:
+                if prop_b > prop_a:
+                    status = "✅ Melhorou"
+                else:
+                    status = "❌ Piorou"
+            else:
+                status = "⚖️ Inconclusivo"
+
+            resultados.append({
+                "Faixa": f"{start}–{end}%",
+                "Período A (%)": f"{prop_a:.2%}",
+                "Período B (%)": f"{prop_b:.2%}",
+                "Valor-p": round(pval, 4),
+                "Resultado": status
+            })
+
+# Mostrar resultados em tabela
+df_resultados = pd.DataFrame(resultados)
+st.dataframe(df_resultados, use_container_width=True)
+
+# Mostrar resumo
+melhorou = df_resultados[df_resultados["Resultado"] == "✅ Melhorou"]
+piorou = df_resultados[df_resultados["Resultado"] == "❌ Piorou"]
+
+st.markdown("### 📊 Resumo da Análise")
+st.markdown(f"- Faixas que **melhoraram**: {', '.join(melhorou['Faixa']) if not melhorou.empty else 'Nenhuma'}")
+st.markdown(f"- Faixas que **pioraram**: {', '.join(piorou['Faixa']) if not piorou.empty else 'Nenhuma'}")
+
+
 st.subheader("Teste de Proporções por Faixa de Scroll")
 
 # Slider para selecionar a faixa de scroll
@@ -191,9 +251,12 @@ if all(n > 0 for n in count):  # Evita erro se não houver dados
     """)
 
     if pval < 0.05:
-        st.success("✅ Diferença estatisticamente significativa na faixa de scroll!")
+        if prop_b > prop_a:
+            st.success("✅ O teste foi um sucesso: houve **melhora significativa** no engajamento nessa faixa de scroll.")
+        else:
+            st.error("❌ O teste **piorou significativamente** o engajamento nessa faixa de scroll.")
     else:
-        st.info("ℹ️ Nenhuma diferença estatisticamente significativa na faixa de scroll.")
+        st.info("ℹ️ O teste não apresentou mudança estatisticamente significativa. Resultado inconclusivo.")
 else:
     st.warning("Não há dados suficientes para realizar o teste nesta faixa.")
 
@@ -236,10 +299,14 @@ else:
     - Valor-p: `{pval:.4f}`
     """)
 
+    # Interpretação prática
     if pval < 0.05:
-        st.success("✅ Diferença estatisticamente significativa! A mudança no site teve impacto no comportamento de scroll.")
+        if prop_b > prop_a:
+            st.success("✅ O teste foi um sucesso: mais visitantes chegaram até esse ponto de scroll no Período B.")
+        else:
+            st.error("❌ O teste teve um efeito negativo: menos visitantes chegaram até esse ponto de scroll no Período B.")
     else:
-        st.info("ℹ️ Sem diferença estatisticamente significativa. A mudança pode não ter afetado o comportamento de scroll.")
+        st.info("ℹ️ O teste não apresentou mudança estatisticamente significativa. Resultado inconclusivo.")
 
 
 # Agrupar por data e formatar para string
