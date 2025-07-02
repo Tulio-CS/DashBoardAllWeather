@@ -39,14 +39,42 @@ st.markdown("### Visão Geral")
 
 # Receita por dia
 st.subheader("Receita por Dia")
-receita_dia = filtro.groupby("date")["price"].sum()
+
+# Cria um índice com todos os dias no intervalo do DataFrame
+todas_datas = pd.date_range(start=filtro["date"].min(), end=filtro["date"].max(), freq="D")
+
+# Agrupa por dia e reindexa para incluir os dias sem vendas
+receita_dia = (
+    filtro.groupby("date")["price"]
+    .sum()
+    .reindex(todas_datas, fill_value=0)
+)
+
+# Mostra o gráfico
 st.line_chart(receita_dia)
+
 
 # Receita por mês
 st.subheader("Receita por Mês")
-filtro["mes"] = filtro["date"].dt.strftime("%b/%y")
+
+# Arredonda a data para o primeiro dia do mês
+filtro["mes"] = filtro["date"].dt.to_period("M").dt.to_timestamp()
+
+# Agrupa e mantém o índice como datetime
 receita_mes = filtro.groupby("mes")["price"].sum().sort_index()
-st.bar_chart(receita_mes)
+
+# Cria o gráfico com rótulos formatados
+fig = px.bar(
+    receita_mes.reset_index(),
+    x="mes",
+    y="price",
+    labels={"mes": "Mês", "price": "Receita"},
+    text_auto=".2s"
+)
+fig.update_layout(xaxis_tickformat="%b/%y")
+
+st.plotly_chart(fig, use_container_width=True)
+
 
 # Tratamento dos SKUs
 df_sku = filtro[filtro['sku'].notnull() & filtro['sku'].str.match(r'^AW_ES_[A-Z]{2}_[A-Z]{2}_[A-Z0-9]+$')].copy()
