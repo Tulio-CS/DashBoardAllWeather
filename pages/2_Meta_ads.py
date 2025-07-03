@@ -51,7 +51,7 @@ def load_data():
 
     # Link clicável para Biblioteca de Anúncios
     df["Ver Anúncio"] = df["ad_id"].apply(
-        lambda x: f"[🔗 Ver Anúncio](https://www.facebook.com/ads/library/?id={x})"
+        lambda x: f"[Ver Anúncio](https://www.facebook.com/ads/library/?id={x})"
     )
 
     return df
@@ -88,22 +88,61 @@ col4.metric("ROAS Estimado", f"{df['ROAS Estimado'].mean():.2f}")
 
 # Tabela com link clicável
 st.subheader("Anúncios")
-show_cols = ["date", "ad_name", "campaign_name", "CTR (%)", "CPC (R$)", "CPA (R$)", "CPP (R$)", "ROAS Real", "Ver Anúncio"]
+show_cols = ["date", "ad_name", "campaign_name", "CTR (%)", "CPC (R$)", "CPA (R$)", "CPP (R$)", "ROAS Real","video_view_3s","video_view_30s","video_p25","video_p50","video_p75","video_p95","video_p100", "Ver Anúncio"]
 st.dataframe(df[show_cols].sort_values("CTR (%)", ascending=False).reset_index(drop=True), use_container_width=True)
 
-# Gráfico de Funil
-st.subheader("Funil de Conversão")
-funnel_data = {
-    "Etapa": ["Impressões", "Cliques", "Carrinhos", "Compras"],
-    "Valor": [
-        df["impressions"].sum(),
-        df["clicks"].sum(),
-        df["add_to_cart"].sum(),
-        df["purchase"].sum()
+# Funil individual por anúncio (vídeo)
+st.subheader("Funil de Consumo de Vídeo por Anúncio")
+
+# Selecionar anúncio com pelo menos 1 view de vídeo
+anuncios_video = df[df["video_view_3s"] > 0]
+anuncio_sel = st.selectbox(
+    "Selecione um anúncio de vídeo:",
+    options=anuncios_video["ad_name"].unique()
+)
+
+# Dados do anúncio selecionado
+row = anuncios_video[anuncios_video["ad_name"] == anuncio_sel].iloc[0]
+
+# Dados do funil em ordem
+funil = pd.DataFrame({
+    "Etapa": [
+        "Alcance (reach)", 
+        "Impressões (impressions)",
+        "Visualizações 3s (video_view_3s)",
+        "Visualizações 30s (video_view_30s)",
+        "25% assistido (video_p25)", 
+        "50% (video_p50)", 
+        "75% (video_p75)", 
+        "95% (video_p95)", 
+        "100% (video_p100)"
+    ],
+    "Visualizações": [
+        row["reach"],
+        row["impressions"],
+        row["video_view_3s"],
+        row["video_view_30s"],
+        row["video_p25"],
+        row["video_p50"],
+        row["video_p75"],
+        row["video_p95"],
+        row["video_p100"]
     ]
-}
-fig_funnel = px.funnel(pd.DataFrame(funnel_data), x="Valor", y="Etapa", title="Funil de Conversão")
-st.plotly_chart(fig_funnel, use_container_width=True)
+})
+
+# Gráfico de funil completo
+fig_funil_ad = px.funnel(
+    funil,
+    y="Etapa", x="Visualizações",
+    title=f"Funil de Engajamento de Vídeo - {row['ad_name']}"
+)
+fig_funil_ad.update_layout(yaxis=dict(autorange="reversed"))
+st.plotly_chart(fig_funil_ad, use_container_width=True)
+
+# Mostrar tabela com os dados brutos abaixo do funil
+st.markdown("### Dados de Visualizações")
+st.dataframe(funil, use_container_width=True)
+
 
 
 # Análise de vídeo: Hook x Hold Rate
