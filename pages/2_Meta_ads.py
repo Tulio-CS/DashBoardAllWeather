@@ -7,7 +7,7 @@ from supabase import create_client
 
 # Configuração inicial da página
 st.set_page_config(page_title="Meta Ads Dashboard", layout="wide")
-st.title("📊 Meta Ads Dashboard · All Weather")
+st.title("Meta Ads Dashboard · All Weather")
 
 # Conexão Supabase
 load_dotenv()
@@ -67,7 +67,7 @@ campaigns = st.sidebar.multiselect("Campanhas", df["campaign_name"].unique(), de
 df = df[(df["date"] >= start_date) & (df["date"] <= end_date) & (df["campaign_name"].isin(campaigns))]
 
 # KPIs
-st.subheader("🔢 Métricas Principais")
+st.subheader("Métricas Principais")
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Impressões", f"{int(df['impressions'].sum()):,}")
 col2.metric("Cliques", f"{int(df['clicks'].sum()):,}")
@@ -87,12 +87,12 @@ col3.metric("CVR", f"{df['CVR (%)'].mean():.2f}%")
 col4.metric("ROAS Estimado", f"{df['ROAS Estimado'].mean():.2f}")
 
 # Tabela com link clicável
-st.subheader("📋 Anúncios")
+st.subheader("Anúncios")
 show_cols = ["date", "ad_name", "campaign_name", "CTR (%)", "CPC (R$)", "CPA (R$)", "CPP (R$)", "ROAS Real", "Ver Anúncio"]
 st.dataframe(df[show_cols].sort_values("CTR (%)", ascending=False).reset_index(drop=True), use_container_width=True)
 
 # Gráfico de Funil
-st.subheader("📉 Funil de Conversão")
+st.subheader("Funil de Conversão")
 funnel_data = {
     "Etapa": ["Impressões", "Cliques", "Carrinhos", "Compras"],
     "Valor": [
@@ -105,18 +105,55 @@ funnel_data = {
 fig_funnel = px.funnel(pd.DataFrame(funnel_data), x="Valor", y="Etapa", title="Funil de Conversão")
 st.plotly_chart(fig_funnel, use_container_width=True)
 
-# ROAS: Real vs Estimado
-st.subheader("📊 ROAS: Real vs Estimado")
-fig_roas = px.scatter(
-    df, x="ROAS Real", y="ROAS Estimado", hover_data=["ad_name", "campaign_name"],
-    title="Comparação ROAS Real vs Estimado", trendline="ols"
-)
-st.plotly_chart(fig_roas, use_container_width=True)
 
 # Análise de vídeo: Hook x Hold Rate
-st.subheader("🎥 Análise de Vídeo: Hook Rate vs Hold Rate")
+st.subheader("Análise de Vídeo: Hook Rate vs Hold Rate")
 fig_video = px.scatter(
     df, x="Hook Rate (%)", y="Hold Rate (%)", size="impressions",
     hover_data=["ad_name", "campaign_name"], title="Hook vs Hold Rate"
 )
 st.plotly_chart(fig_video, use_container_width=True)
+
+
+st.subheader("Evolução Diária por Campanha")
+daily = df.groupby(["date", "campaign_name"]).agg({
+    "spend": "sum",
+    "clicks": "sum",
+    "purchase": "sum"
+}).reset_index()
+
+fig = px.line(
+    daily,
+    x="date", y="spend",
+    color="campaign_name",
+    title="Gasto Diário por Campanha"
+)
+st.plotly_chart(fig, use_container_width=True)
+
+
+st.subheader("Top 10 Anúncios com Maior Custo por Compra")
+top_cpp = df[df["CPP (R$)"] > 0].sort_values("CPP (R$)", ascending=False).head(10)
+fig_cpp = px.bar(
+    top_cpp, x="CPP (R$)", y="ad_name", orientation="h",
+    text="CPP (R$)", title="Anúncios Mais Caros por Conversão"
+)
+st.plotly_chart(fig_cpp, use_container_width=True)
+
+
+st.subheader("Vídeos com Melhor Hook vs Compras")
+video_df = df[df["video_view_3s"] > 0]
+fig_video = px.scatter(
+    video_df, x="Hook Rate (%)", y="purchase",
+    size="impressions", color="campaign_name",
+    hover_data=["ad_name"],
+    title="Hook Rate vs Compras"
+)
+st.plotly_chart(fig_video, use_container_width=True)
+
+st.subheader("Top Anúncios por Taxa de Conversão (CVR)")
+top_cvr = df[df["CVR (%)"] > 0].sort_values("CVR (%)", ascending=False).head(10)
+fig_cvr = px.bar(
+    top_cvr, x="CVR (%)", y="ad_name", orientation="h",
+    text="CVR (%)", title="Anúncios com Maior Conversão por Clique"
+)
+st.plotly_chart(fig_cvr, use_container_width=True)

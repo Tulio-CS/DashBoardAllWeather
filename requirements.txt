@@ -11,4 +11,3 @@ langchain
 langchain-community
 tabulate
 statsmodels
-scipy==1.10.1
