@@ -6,7 +6,6 @@ from supabase import create_client
 import os
 from statsmodels.stats.proportion import proportions_ztest
 
-
 # Configuração da página
 st.set_page_config(page_title="Clarity Insights", layout="wide")
 st.title("Clarity Insights")
@@ -84,8 +83,10 @@ else:
         st.error("Selecione ambos os períodos corretamente.")
         st.stop()
 
+# ==============================
+# Gráficos básicos
+# ==============================
 
-# Gráfico scroll: Visitantes por profundidade
 st.subheader("Visitantes por profundidade de scroll")
 fig_scroll = px.bar(
     df_combined_scroll.sort_values("Scroll depth"),
@@ -98,13 +99,19 @@ fig_scroll = px.bar(
 )
 st.plotly_chart(fig_scroll, use_container_width=True)
 
-# Gráfico acumulado
-st.subheader("Percentual de visitantes que chegaram até pelo menos X% de scroll")
+# ==========================================
+# Gráfico acumulado correto: base 5%
+# ==========================================
+
+st.subheader("Percentual de visitantes que chegaram até pelo menos X% de scroll (Funil)")
 df_pct = []
+
 for label, df in df_combined_scroll.groupby("Período"):
+    # Organize para o funil: do topo para o fundo (descendente)
     df_sorted = df.sort_values("Scroll depth", ascending=False).copy()
     df_sorted["Visitantes acumulados"] = df_sorted["No of visitors"].cumsum()
-    total_visitas = df_sorted["No of visitors"].sum()
+    # O total correto é o número de visitantes na menor faixa (normalmente 5%)
+    total_visitas = df_sorted["No of visitors"].iloc[-1] if not df_sorted.empty else 1
     df_sorted["% acumulado"] = (df_sorted["Visitantes acumulados"] / total_visitas) * 100
     df_sorted["Período"] = label
     df_pct.append(df_sorted.sort_values("Scroll depth"))
@@ -135,25 +142,21 @@ fig_drop = px.line(
 )
 st.plotly_chart(fig_drop, use_container_width=True)
 
-
-
-st.subheader("Análise de Proporções por Faixas de Scroll (10 em 10%)")
+# ===================================
+# Teste de Proporções faixa a faixa (5 em 5)
+# ===================================
+st.subheader("Análise de Proporções por Faixas de Scroll (5 em 5%)")
 
 resultados = []
-
-for start in range(0, 100, 10):
-    end = start + 10
-
-    # Filtrar visitantes na faixa
-    faixa = df_combined_scroll[
-        (df_combined_scroll["Scroll depth"] >= start) &
-        (df_combined_scroll["Scroll depth"] < end)
-    ]
-
-    # Totais por período
-    total_a = df_combined_scroll[df_combined_scroll["Período"] == "Período A"]["No of visitors"].sum()
-    total_b = df_combined_scroll[df_combined_scroll["Período"] == "Período B"]["No of visitors"].sum()
-
+faixas = sorted(df_combined_scroll["Scroll depth"].unique())
+# Considere as faixas em ordem crescente e de 5 em 5%
+for depth in faixas:
+    faixa = df_combined_scroll[df_combined_scroll["Scroll depth"] == depth]
+    # total de visitantes = visitantes na menor faixa (topo do funil)
+    total_a = df_combined_scroll[(df_combined_scroll["Período"] == "Período A") & 
+                                (df_combined_scroll["Scroll depth"] == faixas[0])]["No of visitors"].sum()
+    total_b = df_combined_scroll[(df_combined_scroll["Período"] == "Período B") & 
+                                (df_combined_scroll["Scroll depth"] == faixas[0])]["No of visitors"].sum()
     faixa_a = faixa[faixa["Período"] == "Período A"]["No of visitors"].sum()
     faixa_b = faixa[faixa["Período"] == "Período B"]["No of visitors"].sum()
 
@@ -164,9 +167,8 @@ for start in range(0, 100, 10):
         count = [faixa_a, faixa_b]
         nobs = [total_a, total_b]
 
-        if all(n > 0 for n in count):
+        if all(n > 0 for n in nobs):
             stat, pval = proportions_ztest(count, nobs)
-
             if pval < 0.05:
                 if prop_b > prop_a:
                     status = "✅ Melhorou"
@@ -174,9 +176,8 @@ for start in range(0, 100, 10):
                     status = "❌ Piorou"
             else:
                 status = "⚖️ Inconclusivo"
-
             resultados.append({
-                "Faixa": f"{start}–{end}%",
+                "Faixa": f"{depth}%",
                 "Período A (%)": f"{prop_a:.2%}",
                 "Período B (%)": f"{prop_b:.2%}",
                 "Valor-p": round(pval, 4),
@@ -195,61 +196,44 @@ st.markdown("### 📊 Resumo da Análise")
 st.markdown(f"- Faixas que **melhoraram**: {', '.join(melhorou['Faixa']) if not melhorou.empty else 'Nenhuma'}")
 st.markdown(f"- Faixas que **pioraram**: {', '.join(piorou['Faixa']) if not piorou.empty else 'Nenhuma'}")
 
+# Teste interativo faixa customizada (opcional)
+st.subheader("Teste de Proporções por Faixa de Scroll (customizável)")
 
-st.subheader("Teste de Proporções por Faixa de Scroll")
-
-# Slider para selecionar a faixa de scroll
-scroll_min, scroll_max = st.slider(
-    "Selecione a faixa de profundidade de scroll (%)",
-    min_value=0,
-    max_value=100,
-    value=(20, 30),
-    step=5
+scroll_value = st.slider(
+    "Selecione a profundidade de scroll (%) para o teste",
+    min_value=int(min(faixas)), max_value=int(max(faixas)), value=int(faixas[2]), step=5
 )
 
-# Filtrar os dados por faixa de scroll
-df_intervalo = df_combined_scroll[
-    (df_combined_scroll["Scroll depth"] >= scroll_min) &
-    (df_combined_scroll["Scroll depth"] <= scroll_max)
-]
+# total no topo do funil
+total_a = df_combined_scroll[(df_combined_scroll["Período"] == "Período A") & 
+                            (df_combined_scroll["Scroll depth"] == faixas[0])]["No of visitors"].sum()
+total_b = df_combined_scroll[(df_combined_scroll["Período"] == "Período B") & 
+                            (df_combined_scroll["Scroll depth"] == faixas[0])]["No of visitors"].sum()
+# visitantes na faixa
+faixa_a = df_combined_scroll[(df_combined_scroll["Período"] == "Período A") & 
+                            (df_combined_scroll["Scroll depth"] == scroll_value)]["No of visitors"].sum()
+faixa_b = df_combined_scroll[(df_combined_scroll["Período"] == "Período B") & 
+                            (df_combined_scroll["Scroll depth"] == scroll_value)]["No of visitors"].sum()
 
-# Total de visitantes por período
-total_a = df_combined_scroll[df_combined_scroll["Período"] == "Período A"]["No of visitors"].sum()
-total_b = df_combined_scroll[df_combined_scroll["Período"] == "Período B"]["No of visitors"].sum()
-
-# Visitantes na faixa por período
-faixa_a = df_intervalo[df_intervalo["Período"] == "Período A"]["No of visitors"].sum()
-faixa_b = df_intervalo[df_intervalo["Período"] == "Período B"]["No of visitors"].sum()
-
-# Cálculo das proporções
 prop_a = faixa_a / total_a if total_a > 0 else 0
 prop_b = faixa_b / total_b if total_b > 0 else 0
 
-# Exibição formatada
 st.markdown(f"""
-### Visitantes na faixa de scroll entre {scroll_min}% e {scroll_max}%:
+### Visitantes que chegaram até {scroll_value}% de scroll:
 
 - **Período A:** {faixa_a} de {total_a} visitantes → **{prop_a:.2%}**
 - **Período B:** {faixa_b} de {total_b} visitantes → **{prop_b:.2%}**
 """)
 
-# Aplicar o teste
 count = [faixa_a, faixa_b]
 nobs = [total_a, total_b]
 
-if all(n > 0 for n in count):  # Evita erro se não houver dados
+if all(n > 0 for n in nobs):
     stat, pval = proportions_ztest(count, nobs)
-
     st.markdown(f"""
-    ### Teste de Proporções para faixa de scroll entre {scroll_min}% e {scroll_max}%:
-
-    - Visitantes na faixa:
-      - **Período A:** {faixa_a} de {total_a} visitantes → **{prop_a:.2%}**
-      - **Período B:** {faixa_b} de {total_b} visitantes → **{prop_b:.2%}**
     - Estatística z: `{stat:.4f}`
     - Valor-p: `{pval:.4f}`
     """)
-
     if pval < 0.05:
         if prop_b > prop_a:
             st.success("✅ O teste foi um sucesso: houve **melhora significativa** no engajamento nessa faixa de scroll.")
@@ -259,55 +243,6 @@ if all(n > 0 for n in count):  # Evita erro se não houver dados
         st.info("ℹ️ O teste não apresentou mudança estatisticamente significativa. Resultado inconclusivo.")
 else:
     st.warning("Não há dados suficientes para realizar o teste nesta faixa.")
-
-
-st.subheader("Teste de Proporções: Visitantes que chegaram até X% de scroll")
-
-# Seleção do ponto de corte
-scroll_cutoff = st.slider("Escolha a profundidade de scroll (%) para o teste", min_value=0, max_value=100, value=75, step=5)
-
-# Filtrar os dados para esse ponto
-df_cutoff = df_scroll_pct_acum[df_scroll_pct_acum["Scroll depth"] == scroll_cutoff]
-
-if df_cutoff["Período"].nunique() < 2:
-    st.warning("Não há dados suficientes para ambos os períodos nesse ponto de scroll.")
-else:
-    # Obter os valores para cada período
-    a_pct = df_cutoff[df_cutoff["Período"] == "Período A"]["% acumulado"].values[0]
-    b_pct = df_cutoff[df_cutoff["Período"] == "Período B"]["% acumulado"].values[0]
-
-    # Obter os totais de visitantes para cada período
-    total_a = df_combined_scroll[df_combined_scroll["Período"] == "Período A"]["No of visitors"].sum()
-    total_b = df_combined_scroll[df_combined_scroll["Período"] == "Período B"]["No of visitors"].sum()
-
-    # Calcular o número de sucessos (visitantes que chegaram até o ponto)
-    success_a = int((a_pct / 100) * total_a)
-    success_b = int((b_pct / 100) * total_b)
-
-    # Aplicar o teste z para proporções
-    count = [success_a, success_b]
-    nobs = [total_a, total_b]
-    stat, pval = proportions_ztest(count, nobs)
-
-    st.markdown(f"""
-    **Resultados do Teste de Proporções para {scroll_cutoff}% de scroll:**
-
-    - Visitantes que chegaram até {scroll_cutoff}%:
-        - Período A: {success_a} de {total_a} visitantes ({a_pct:.2f}%)
-        - Período B: {success_b} de {total_b} visitantes ({b_pct:.2f}%)
-    - Estatística z: `{stat:.4f}`
-    - Valor-p: `{pval:.4f}`
-    """)
-
-    # Interpretação prática
-    if pval < 0.05:
-        if prop_b > prop_a:
-            st.success("✅ O teste foi um sucesso: mais visitantes chegaram até esse ponto de scroll no Período B.")
-        else:
-            st.error("❌ O teste teve um efeito negativo: menos visitantes chegaram até esse ponto de scroll no Período B.")
-    else:
-        st.info("ℹ️ O teste não apresentou mudança estatisticamente significativa. Resultado inconclusivo.")
-
 
 # Agrupar por data e formatar para string
 df_combined_scroll["date"] = df_combined_scroll["timestamp"].dt.date
@@ -321,13 +256,11 @@ scroll_avg = df_combined_scroll.groupby(["date_str", "Período"]).apply(
 # ===============================
 # Comparação de sessionsCount por métrica (excluindo métricas irrelevantes)
 # ===============================
-
 metricas_remover = ["PageTitle", "ReferrerUrl", "Device", "OS", "Browser"]
 
 if "metricName" in df_combined_insights.columns and "sessionsCount" in df_combined_insights.columns:
     st.subheader("Soma de Sessões por Métrica (clarityInsights)")
 
-    # Filtrar métricas indesejadas
     df_metricas_filtrado = df_combined_insights[~df_combined_insights["metricName"].isin(metricas_remover)]
 
     soma_metricas = (
@@ -352,7 +285,6 @@ if "metricName" in df_combined_insights.columns and "sessionsCount" in df_combin
 
     with st.expander("Ver tabela detalhada"):
         st.dataframe(soma_metricas, use_container_width=True)
-
 
 # Tabelas
 st.subheader("Tabela de Clarity Insights")
