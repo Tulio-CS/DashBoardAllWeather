@@ -15,109 +15,190 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 st.title("Dashboard Shopify - All Weather")
 
+# 1) Carrega vendas Shopify
 @st.cache_data(ttl=600)
-def carregar_dados():
-    response = supabase.table("Shopify").select("*").execute()
-    df = pd.DataFrame(response.data)
+def carregar_shopify():
+    resp = supabase.table("Shopify").select("*").execute()
+    df = pd.DataFrame(resp.data)
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     return df
 
-df = carregar_dados()
+# 2) Carrega estoque atual por SKU
+@st.cache_data(ttl=600)
+def carregar_estoque():
+    resp = supabase.table("estoque").select("*").execute()
+    df = pd.DataFrame(resp.data)
+    df["timestamp"] = pd.to_datetime(df["timestamp"])
+    df = (
+        df.sort_values("timestamp")
+          .groupby("sku", as_index=False)
+          .last()[["sku","inventory_quantity"]]
+          .rename(columns={"inventory_quantity":"stock"})
+    )
+    return df
 
-# Filtros de data
+# 3) Carrega vendas totais (tabela vendas)
+@st.cache_data(ttl=600)
+def carregar_vendas():
+    resp = supabase.table("vendas").select("*").execute()
+    df = pd.DataFrame(resp.data)
+    # Limpa e converte Quantidade
+    df["Quantidade"] = df["Quantidade"].fillna("0").str.replace(",", ".")
+    df["qty_total"] = (
+        pd.to_numeric(df["Quantidade"], errors="coerce")
+          .fillna(0).astype(int)
+    )
+    # renomeia coluna de produto
+    df = df.rename(columns={"Código do produto":"sku"})
+    return df
+
+df = carregar_shopify()
+df_stock = carregar_estoque()
+df_vendas = carregar_vendas()
+
+# Filtros de data para Shopify
 start_date = st.sidebar.date_input("Data inicial", df['date'].min())
-end_date = st.sidebar.date_input("Data final", df['date'].max())
-filtro = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
+end_date   = st.sidebar.date_input("Data final",   df['date'].max())
+filtro     = df[(df['date']>=pd.to_datetime(start_date)) & (df['date']<=pd.to_datetime(end_date))]
 
-# KPIs principais
-col1, col2, col3, col4 = st.columns(4)
+# KPIs  
+col1,col2,col3 = st.columns(3)
 col1.metric("Receita Total", f"R$ {filtro['price'].sum():,.0f}".replace(",", "."))
-col2.metric("Ticket Médio", f"R$ {filtro['price'].mean():,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+col2.metric("Ticket Médio", f"R$ {filtro['price'].mean():,.2f}".replace(".",","))
 col3.metric("Pedidos", f"{filtro['order_number'].nunique():,}".replace(",", "."))
 
 st.markdown("### Visão Geral")
 
 # Receita por dia
 st.subheader("Receita por Dia")
-
-# Cria um índice com todos os dias no intervalo do DataFrame
-todas_datas = pd.date_range(start=filtro["date"].min(), end=filtro["date"].max(), freq="D")
-
-# Agrupa por dia e reindexa para incluir os dias sem vendas
+todas_datas = pd.date_range(filtro["date"].min(), filtro["date"].max(), freq="D")
 receita_dia = (
     filtro.groupby("date")["price"]
-    .sum()
-    .reindex(todas_datas, fill_value=0)
+           .sum()
+           .reindex(todas_datas, fill_value=0)
 )
-
-# Mostra o gráfico
 st.line_chart(receita_dia)
-
 
 # Receita por mês
 st.subheader("Receita por Mês")
-
-# Arredonda a data para o primeiro dia do mês
 filtro["mes"] = filtro["date"].dt.to_period("M").dt.to_timestamp()
-
-# Agrupa e mantém o índice como datetime
 receita_mes = filtro.groupby("mes")["price"].sum().sort_index()
-
-# Cria o gráfico com rótulos formatados
 fig = px.bar(
     receita_mes.reset_index(),
-    x="mes",
-    y="price",
-    labels={"mes": "Mês", "price": "Receita"},
+    x="mes", y="price",
+    labels={"mes":"Mês","price":"Receita"},
     text_auto=".2s"
 )
 fig.update_layout(xaxis_tickformat="%b/%y")
-
 st.plotly_chart(fig, use_container_width=True)
 
-
-# Tratamento dos SKUs
-df_sku = filtro[filtro['sku'].notnull() & filtro['sku'].str.match(r'^AW_ES_[A-Z]{2}_[A-Z]{2}_[A-Z0-9]+$')].copy()
-df_sku['tipo'] = df_sku['sku'].str.extract(r'^AW_ES_([A-Z]{2})_')
-df_sku['cor'] = df_sku['sku'].str.extract(r'^AW_ES_[A-Z]{2}_([A-Z]{2})_')
-df_sku['tamanho'] = df_sku['sku'].str.extract(r'^AW_ES_[A-Z]{2}_[A-Z]{2}_([A-Z0-9]+)')
-df_sku['compressao'] = df_sku['tipo'].map({'LC': 'Com', 'CC': 'Com', 'LS': 'Sem', 'CS': 'Sem'})
-df_sku['comprimento'] = df_sku['tipo'].map({'LC': 'Longo', 'LS': 'Longo', 'CC': 'Curto', 'CS': 'Curto'})
+# Tratamento dos SKUs para distribuição
+df_sku = filtro[
+    filtro['sku'].notnull() &
+    filtro['sku'].str.match(r'^AW_ES_[A-Z]{2}_[A-Z]{2}_[A-Z0-9]+$')
+].copy()
+df_sku['tipo']       = df_sku['sku'].str.extract(r'^AW_ES_([A-Z]{2})_')
+df_sku['cor']        = df_sku['sku'].str.extract(r'^AW_ES_[A-Z]{2}_([A-Z]{2})_')
+df_sku['tamanho']    = df_sku['sku'].str.extract(r'^AW_ES_[A-Z]{2}_[A-Z]{2}_([A-Z0-9]+)')
+df_sku['compressao'] = df_sku['tipo'].map({'LC':'Com','CC':'Com','LS':'Sem','CS':'Sem'})
+df_sku['comprimento']= df_sku['tipo'].map({'LC':'Longo','LS':'Longo','CC':'Curto','CS':'Curto'})
 
 # Gráficos de distribuição
 st.subheader("Distribuição por Comprimento")
-fig = px.pie(df_sku, names='comprimento', title='Vendas por Comprimento', hole=0.4)
+fig = px.pie(df_sku, names='comprimento', hole=0.4)
 st.plotly_chart(fig)
 
 st.subheader("Distribuição por Compressão")
-fig = px.pie(df_sku, names='compressao', title='Vendas por Compressão', hole=0.4)
+fig = px.pie(df_sku, names='compressao', hole=0.4)
 st.plotly_chart(fig)
 
 st.subheader("Distribuição por Cor")
-fig = px.pie(df_sku, names='cor', title='Vendas por Cor', hole=0.4)
+fig = px.pie(df_sku, names='cor', hole=0.4)
 st.plotly_chart(fig)
 
 st.subheader("Distribuição por Tamanho")
-fig = px.pie(df_sku, names='tamanho', title='Vendas por Tamanho', hole=0.4)
+fig = px.pie(df_sku, names='tamanho', hole=0.4)
 st.plotly_chart(fig)
 
-# Top 10 SKUs mais vendidos
-st.subheader("Top 10 SKUs - Percentual")
-sku_counts = df_sku['sku'].value_counts(normalize=True).head(10).reset_index()
-sku_counts.columns = ['sku', 'percentage']
-sku_counts['percentage'] = sku_counts['percentage'] * 100
+# --------------------------------------------------
+# Gráfico de % de vendas por SKU (tabela vendas)
+# --------------------------------------------------
+st.subheader("Percentual de Vendas por SKU (tabela vendas)")
 
-fig = px.bar(sku_counts, 
-             x='percentage', y='sku', 
-             orientation='h',
-             title='Top 10 SKUs - Percentual',
-             text=sku_counts['percentage'].apply(lambda x: f'{x:.1f}%'))
+# resumo vendas totais
+df_pct = (
+    df_vendas.groupby("sku", as_index=False)["qty_total"]
+             .sum()
+)
+total_all = df_pct["qty_total"].sum()
+df_pct["percentage"] = df_pct["qty_total"] / total_all * 100
 
-fig.update_layout(yaxis={'categoryorder':'total ascending'})
-st.plotly_chart(fig)
+# ordenar e plotar todas as 32 SKUs
+df_pct = df_pct.sort_values("percentage", ascending=True)
+fig = px.bar(
+    df_pct, x="percentage", y="sku",
+    orientation="h", title="Percentual de Vendas por SKU",
+    text=df_pct["percentage"].map(lambda x: f"{x:.1f}%")
+)
+fig.update_layout(yaxis=dict(categoryorder="total ascending"))
+st.plotly_chart(fig, use_container_width=True)
 
-# Tabela de Dados do Supabase (sem a coluna "id")
+# --------------------------------------------------
+# Previsão Demanda 120d e Reorder Qty
+# --------------------------------------------------
+st.subheader("Previsão Demanda 120d e Reorder Qty (32 SKUs)")
+
+# agrupa vendas diárias por SKU
+df_daily = (
+    df.groupby([df['sku'], df['date'].dt.normalize()])
+      .size()
+      .reset_index(name="y")
+      .rename(columns={"date":"ds"})
+)
+
+H = 120
+hoje = df_daily["ds"].max() if not df_daily.empty else pd.Timestamp.today()
+skus = sorted(df_daily["sku"].dropna().unique())
+
+rows = []
+for sku in skus:
+    df_s = df_daily[df_daily["sku"]==sku].sort_values("ds")
+    if not df_s.empty:
+        idx = pd.date_range(df_s.ds.min(), hoje, freq="D")
+        df_s = df_s.set_index("ds").reindex(idx, fill_value=0).rename_axis("ds").reset_index()
+        dias = (df_s.ds.max()-df_s.ds.min()).days + 1
+        total = df_s["y"].sum()
+        avg = total/dias if dias>0 else 0
+    else:
+        avg = 0
+    demanda = int(round(avg * H))
+    estoque = int(df_stock.loc[df_stock.sku==sku, "stock"].squeeze()) \
+              if sku in df_stock.sku.values else 0
+    reorder = max(0, demanda - estoque)
+    rows.append({
+        "SKU": sku,
+        "Demanda 120d": demanda,
+        "Estoque Atual": estoque,
+        "Reorder Qty": reorder
+    })
+
+df_summary = pd.DataFrame(rows)
+
+st.dataframe(
+    df_summary.style.format({
+        "Demanda 120d":"{:,}",
+        "Estoque Atual":"{:,}",
+        "Reorder Qty":"{:,}"
+    }),
+    use_container_width=True
+)
+
+# --------------------------------------------------
+# Tabela completa Shopify
+# --------------------------------------------------
 st.subheader("Tabela Completa · Shopify")
 df_visual = df.drop(columns=["id"]) if "id" in df.columns else df
-st.dataframe(df_visual.sort_values(by="date", ascending=False).reset_index(drop=True))
-
+st.dataframe(
+    df_visual.sort_values("date", ascending=False).reset_index(drop=True),
+    use_container_width=True
+)
