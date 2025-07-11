@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.express as px
 from supabase import create_client
 from dotenv import load_dotenv
+from auth import login
 import os
 
 load_dotenv()
@@ -14,6 +15,8 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 def analytics_page():
+    if not login():
+        st.stop()
     st.title('Dashboard Google Analytics - All Weather')
 
     @st.cache_data(ttl=600)

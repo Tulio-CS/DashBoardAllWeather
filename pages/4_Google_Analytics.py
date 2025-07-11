@@ -3,6 +3,7 @@ import pandas as pd
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+from auth import login
 
 # Carrega variáveis de ambiente
 load_dotenv()
@@ -11,6 +12,9 @@ SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
 # Inicializa cliente Supabase
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+if not login():
+    st.stop()
 
 st.title('Dashboard de Performance - Google Analytics (All Weather)')
 

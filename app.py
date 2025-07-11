@@ -1,9 +1,13 @@
 import streamlit as st
+from auth import login
 
 st.set_page_config(
     page_title="Resumo Técnico · All Weather",
     layout="wide",
 )
+
+if not login():
+    st.stop()
 
 st.title("All Weather · Visão Geral do Projeto")
 

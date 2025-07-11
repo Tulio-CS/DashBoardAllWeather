@@ -4,6 +4,7 @@ import plotly.express as px
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+from auth import login
 
 load_dotenv()
 
@@ -16,6 +17,8 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 def shopify_page():
+    if not login():
+        st.stop()
     st.title("Dashboard Shopify - All Weather")
 
     @st.cache_data(ttl=600)
