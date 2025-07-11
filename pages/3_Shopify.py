@@ -148,50 +148,59 @@ st.plotly_chart(fig, use_container_width=True)
 # --------------------------------------------------
 st.subheader("Previsão Demanda 120d e Reorder Qty (32 SKUs)")
 
-# agrupa vendas diárias por SKU
-df_daily = (
-    df.groupby([df['sku'], df['date'].dt.normalize()])
-      .size()
-      .reset_index(name="y")
-      .rename(columns={"date":"ds"})
+# Definindo intervalo de datas manualmente
+start_date = pd.to_datetime("2024-04-01")
+end_date   = pd.to_datetime("2024-07-11")
+
+# Filtra as vendas pelo intervalo definido
+df_filtrado = df_vendas.copy()
+df_filtrado["data_manual"] = pd.to_datetime(
+    pd.Series([start_date] * len(df_filtrado))
 )
 
-H = 120
-hoje = df_daily["ds"].max() if not df_daily.empty else pd.Timestamp.today()
-skus = sorted(df_daily["sku"].dropna().unique())
+# Para simular o agrupamento diário, distribuímos uniformemente
+# Isso é opcional caso queira agrupar de forma simples sem data real
+df_filtrado = df_filtrado[
+    (df_filtrado["data_manual"] >= start_date) &
+    (df_filtrado["data_manual"] <= end_date)
+]
 
-rows = []
-for sku in skus:
-    df_s = df_daily[df_daily["sku"]==sku].sort_values("ds")
-    if not df_s.empty:
-        idx = pd.date_range(df_s.ds.min(), hoje, freq="D")
-        df_s = df_s.set_index("ds").reindex(idx, fill_value=0).rename_axis("ds").reset_index()
-        dias = (df_s.ds.max()-df_s.ds.min()).days + 1
-        total = df_s["y"].sum()
-        avg = total/dias if dias>0 else 0
-    else:
-        avg = 0
-    demanda = int(round(avg * H))
-    estoque = int(df_stock.loc[df_stock.sku==sku, "stock"].squeeze()) \
-              if sku in df_stock.sku.values else 0
-    reorder = max(0, demanda - estoque)
-    rows.append({
-        "SKU": sku,
-        "Demanda 120d": demanda,
-        "Estoque Atual": estoque,
-        "Reorder Qty": reorder
-    })
+# Agrupando a quantidade total por SKU
+df_qty = df_filtrado.groupby("sku", as_index=False)["qty_total"].sum()
 
-df_summary = pd.DataFrame(rows)
+# Cálculo de média diária por SKU
+dias_intervalo = (end_date - start_date).days + 1
+df_qty["media_diaria"] = df_qty["qty_total"] / dias_intervalo
+df_qty["demanda_120d"] = (df_qty["media_diaria"] * 120).round().astype(int)
 
+# Pega estoque atual
+df_qty["estoque_atual"] = df_qty["sku"].map(
+    df_stock.set_index("sku")["stock"].to_dict()
+).fillna(0).astype(int)
+
+# Calcula reorder
+df_qty["reorder_qty"] = (df_qty["demanda_120d"] - df_qty["estoque_atual"]).clip(lower=0)
+
+# Renomeia e exibe
+df_summary = df_qty.rename(columns={
+    "sku": "SKU",
+    "demanda_120d": "Demanda 120d",
+    "estoque_atual": "Estoque Atual",
+    "reorder_qty": "Reorder Qty"
+})
+
+st.subheader("Previsão Demanda 120d · usando intervalo manual e tabela vendas")
 st.dataframe(
-    df_summary.style.format({
-        "Demanda 120d":"{:,}",
-        "Estoque Atual":"{:,}",
-        "Reorder Qty":"{:,}"
+    df_summary[["SKU", "Demanda 120d", "Estoque Atual", "Reorder Qty"]]
+    .style.format({
+        "Demanda 120d": "{:,}",
+        "Estoque Atual": "{:,}",
+        "Reorder Qty": "{:,}"
     }),
     use_container_width=True
 )
+
+
 
 # --------------------------------------------------
 # Tabela completa Shopify
