@@ -6,6 +6,7 @@ from langchain.vectorstores import FAISS
 from langchain.docstore.document import Document
 from langchain.chains import RetrievalQA
 from dotenv import load_dotenv
+from auth import login
 import os
 
 load_dotenv()
@@ -22,6 +23,8 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
 def chat_page():
+    if not login():
+        st.stop()
     st.title("Chat AllWeather")
 
     # =============================

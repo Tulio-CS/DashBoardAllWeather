@@ -4,6 +4,7 @@ import plotly.express as px
 from dotenv import load_dotenv
 from supabase import create_client
 import os
+from auth import login
 
 # Configuração da página
 st.set_page_config(page_title="Instagram Stories", layout="wide")
@@ -14,6 +15,9 @@ load_dotenv()
 SUPABASE_URL  = os.getenv("SUPABASE_URL")
 SUPABASE_KEY  = os.getenv("SUPABASE_KEY")
 supabase      = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+if not login():
+    st.stop()
 
 @st.cache_data(ttl=600)
 def carregar_stories():
