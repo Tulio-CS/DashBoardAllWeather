@@ -129,7 +129,7 @@ st.plotly_chart(fig)
 # --------------------------------------------------
 st.subheader("Percentual de Vendas por SKU (tabela vendas)")
 
-# resumo vendas totais
+# Calculando o percentual de vendas por SKU
 df_pct = (
     df_vendas.groupby("sku", as_index=False)["qty_total"]
              .sum()
@@ -137,15 +137,45 @@ df_pct = (
 total_all = df_pct["qty_total"].sum()
 df_pct["percentage"] = df_pct["qty_total"] / total_all * 100
 
-# ordenar e plotar todas as 32 SKUs
-df_pct = df_pct.sort_values("percentage", ascending=True)
+# Ordenando para exibir do maior para o menor percentual
+df_pct = df_pct.sort_values("percentage", ascending=False)
+
+# Gráfico
 fig = px.bar(
-    df_pct, x="percentage", y="sku",
-    orientation="h", title="Percentual de Vendas por SKU",
+    df_pct, 
+    x="percentage", 
+    y="sku",
+    orientation="h", 
+    title="Percentual de Vendas por SKU",
     text=df_pct["percentage"].map(lambda x: f"{x:.1f}%")
 )
-fig.update_layout(yaxis=dict(categoryorder="total ascending"))
+fig.update_layout(
+    yaxis=dict(categoryorder="total ascending"),
+    xaxis_title="Percentual (%)",
+    yaxis_title="SKU",
+    plot_bgcolor='rgba(0,0,0,0)'
+)
+fig.update_traces(marker_color='lightskyblue')
 st.plotly_chart(fig, use_container_width=True)
+
+# Tabela centralizada e ordenável corretamente
+df_pct_show = df_pct.copy()
+df_pct_show["Percentual (%)"] = df_pct_show["percentage"]
+df_pct_show["Percentual (%)"] = df_pct_show["Percentual (%)"].map(lambda x: f"{x:.2f}%")
+df_pct_show = df_pct_show.rename(columns={"qty_total": "Quantidade Vendida", "sku": "SKU"})
+
+# Exibindo tabela centralizada (usando pandas Styler)
+def centralizar(df):
+    return df.style.set_properties(**{'text-align': 'center'}).set_table_styles(
+        [{'selector': 'th', 'props': [('text-align', 'center')]}]
+    )
+
+st.markdown("### Tabela de Percentual de Vendas por SKU")
+st.dataframe(
+    df_pct_show[["SKU", "Quantidade Vendida", "Percentual (%)"]],
+    hide_index=True,
+    use_container_width=True
+)
 
 # --------------------------------------------------
 # Previsão Demanda 120d e Reorder Qty
