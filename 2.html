@@ -158,17 +158,12 @@
 
 <style>
   * { box-sizing: border-box; }
-  
-  /* 1. esconde o widget original */
   span[zoorix-widget] { display: none; }
-
-  /* 2. container + cards compactos */
   #bundle-container { 
     max-width: 600px; 
     margin: 16px auto; 
     font-family: 'Inter', sans-serif;
   }
-  
   .bundle-item { 
     display: flex; 
     gap: 12px; 
@@ -181,13 +176,10 @@
     transition: all 0.2s ease;
     position: relative;
   }
-  
   .bundle-item:hover {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transform: translateY(-1px);
   }
-  
-  /* Imagem do produto à esquerda - mais compacta */
   .bundle-item .product-image {
     flex: 0 0 70px; 
     height: 70px; 
@@ -198,14 +190,12 @@
     border: 1px solid #e5e7eb;
     transition: all 0.3s ease;
   }
-  
   .bundle-item .product-details { 
     flex: 1; 
     display: flex; 
     flex-direction: column; 
     gap: 4px; 
   }
-  
   .bundle-item .product-name { 
     font-size: 14px; 
     font-weight: 600; 
@@ -213,609 +203,106 @@
     text-decoration: none; 
     margin-bottom: 2px;
   }
-  
-  .bundle-item .product-name:hover {
-    color: #374151;
-  }
-  
+  .bundle-item .product-name:hover { color: #374151; }
   .bundle-item .product-variant {
-    color: #6b7280; 
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    line-height: 1.3;
+    color: #6b7280; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.025em; word-wrap: break-word; overflow-wrap: break-word; line-height: 1.3;
   }
-  
-  .bundle-item .bundle-color {
-    color: #6b7280; 
-    font-size: 11px;
-  }
-  
-  .bundle-item .price-info { 
-    display: flex; 
-    gap: 8px;   
-    align-items: baseline; 
-    margin: 4px 0;
-    flex-wrap: wrap;
-  }
-  
-  .bundle-item .pix-price { 
-    color: #059669; 
-    font-weight: 700; 
-    font-size: 14px; 
-  }
-  
-  .bundle-item .original-price { 
-    text-decoration: line-through; 
-    color: #9ca3af; 
-    font-size: 12px; 
-  }
-  
-  .bundle-item .installments {
-    color: #6b7280; 
-    font-size: 10px;
-    margin-bottom: 6px;
-  }
-  
-  .bundle-item .actions { 
-    margin-top: auto; 
-    display: flex; 
-    gap: 6px; 
-    flex-wrap: wrap;
-  }
-  
-  .bundle-item .actions button { 
-    background: none;
-    border: 1px solid #e5e7eb;
-    color: #374151;
-    cursor: pointer; 
-    padding: 6px 12px; 
-    border-radius: 4px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    font-size: 11px;
-    white-space: nowrap;
-    min-width: 0;
-  }
-  
-  .bundle-item .actions button:hover { 
-    background: #f3f4f6;
-    color: #111827;
-    border-color: #d1d5db;
-  }
-
-  .bundle-action-section {
-  display: flex;
-  gap: 12px;
-  padding: 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-  margin-bottom: 12px;
-  background: white;
-  align-items: center; /* garante alinhamento vertical central */
-  justify-content: flex-start; /* botão e quantidade grudados à esquerda */
-}
-
-.bundle-quantity-control {
-  display: flex;
-  align-items: center;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 0;
-  overflow: hidden;
-  height: 40px; /* altura igual ao botão */
-}
-
-.bundle-quantity-control input {
-  width: 60px;
-  text-align: center;
-  border: none;
-  border-left: 1px solid #d1d5db;
-  border-right: 1px solid #d1d5db;
-  background: white;
-  height: 40px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #111827;
-  outline: none;
-}
-
-.btn-add-cart {
-  background: #20cc44 !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 6px !important;
-  cursor: pointer !important;
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  transition: none !important;
-  padding: 12px 24px !important;
-  text-transform: none !important;
-  letter-spacing: 0.025em !important;
-  position: relative !important;
-  overflow: hidden !important;
-  height: 40px !important;
-  margin-left: 12px !important;
-  min-width: 220px !important;    /* <- fixa largura mínima */
-  text-align: center !important;
-  box-shadow: none !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Remove efeito hover/active do botão */
-.btn-add-cart:hover,
-.btn-add-cart:active {
-  background: #20cc44 !important;
-  color: white !important;
-  box-shadow: none !important;
-  transform: none !important;
-}
-
-
-  /* Botão de desfazer remoção - mais discreto e persistente */
-  .undo-removal-section {
-    display: flex; 
-    gap: 12px; 
-    padding: 8px 12px; /* Menor padding */
-    border: 1px solid #e5e7eb; /* Borda mais neutra */
-    border-radius: 6px; 
-    margin-bottom: 12px; 
-    background: #f9fafb; /* Fundo mais claro */
-    align-items: center;
-    justify-content: space-between;
-    animation: slideIn 0.3s ease-out;
-    color: #6b7280; /* Cor de texto mais discreta */
-    font-size: 13px; /* Fonte um pouco menor */
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .undo-removal-section .undo-text {
-    flex: 1;
-    font-weight: 500;
-  }
-
-  .btn-undo-removal {
-    background: transparent;
-    color: #374151; /* Cor mais neutra */
-    border: none;
-    cursor: pointer;
-    font-size: 13px; /* Fonte um pouco menor */
-    font-weight: 600;
-    text-decoration: none; /* Sem underline por padrão */
-    transition: all 0.2s ease;
-    padding: 4px 8px;
-    border-radius: 4px;
-  }
-
-  .btn-undo-removal:hover {
-    color: #111827;
-    background: #e5e7eb; /* Fundo no hover */
-    text-decoration: underline; /* Underline no hover */
-  }
-
-  /* Modal de confirmação de remoção */
-  #removal-modal-backdrop { 
-    position: fixed; 
-    inset: 0; 
-    background: rgba(0,0,0,0.5);
-    display: none; 
-    align-items: center; 
-    justify-content: center; 
-    z-index: 1001; 
-    backdrop-filter: blur(4px);
-  }
-  
-  #removal-modal { 
-    background: white; 
-    width: 90%; 
-    max-width: 400px; 
-    padding: 24px;
-    border-radius: 12px; 
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); 
-    font-family: 'Inter', sans-serif; 
-    text-align: center;
-  }
-  
-  #removal-modal h3 { 
-    margin: 0 0 16px; 
-    font-size: 18px; 
-    font-weight: 600;
-    color: #111827; 
-    line-height: 1.4;
-  }
-  
-  #removal-modal p { 
-    margin: 0 0 24px; 
-    font-size: 14px; 
-    color: #6b7280; 
-    line-height: 1.4;
-  }
-  
-  .removal-modal-actions { 
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-  }
-  
-  .removal-modal-actions button { 
-    padding: 12px 24px; 
-    border-radius: 6px; 
-    border: none; 
-    cursor: pointer; 
-    font-weight: 600;
-    transition: all 0.2s ease;
-    font-size: 14px;
-    min-width: 100px;
-  }
-  
-  #removal-confirm { 
-    background: #374151;
-    color: white; 
-  }
-  
-  #removal-confirm:hover {
-    background: #1f2937;
-    transform: translateY(-1px);
-  }
-  
-  #removal-cancel { 
-    background: #374151;
-    color: white; 
-  }
-  
-  #removal-cancel:hover {
-    background: #1f2937;
-    transform: translateY(-1px);
-  }
-
-  /* 4. modal */
-  #bundle-modal-backdrop { 
-    position: fixed; 
-    inset: 0; 
-    background: rgba(0,0,0,0.5);
-    display: none; 
-    align-items: center; 
-    justify-content: center; 
-    z-index: 1000; 
-    backdrop-filter: blur(4px);
-  }
-  
-  #bundle-modal { 
-    background: white; 
-    width: 90%; 
-    max-width: 500px; 
-    padding: 24px;
-    border-radius: 12px; 
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); 
-    font-family: 'Inter', sans-serif; 
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-  
-  #bundle-modal h3 { 
-    margin: 0 0 20px; 
-    font-size: 18px; 
-    font-weight: 600;
-    color: #111827; 
-  }
-  
-  .variant-section { 
-    margin-bottom: 20px; 
-  }
-  
-  .variant-section h4 { 
-    margin: 0 0 10px; 
-    font-size: 14px; 
-    font-weight: 600; 
-    color: #111827; 
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  
-  .variant-section .selected-value {
-    font-weight: 400;
-    color: #6b7280;
-  }
-  
-  .info-icon {
-    color: #9ca3af;
-    cursor: help;
-    font-size: 12px;
-  }
-
-  /* Layout responsivo para comprimento e compressão */
-  .variant-controls-row {
-    display: flex;
-    gap: 16px;
-  }
-
-  .variant-controls-row .variant-section {
-    flex: 1;
-  }
-  
-  /* Color options */
-  .color-options {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .color-option {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #e5e7eb;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
+  .bundle-item .price-info { display: flex; gap: 8px; align-items: baseline; margin: 4px 0; flex-wrap: wrap;}
+  .bundle-item .pix-price { color: #059669; font-weight: 700; font-size: 14px;}
+  .bundle-item .original-price { text-decoration: line-through; color: #9ca3af; font-size: 12px;}
+  .bundle-item .installments { color: #6b7280; font-size: 10px; margin-bottom: 6px;}
+  .bundle-item .actions { margin-top: auto; display: flex; gap: 6px; flex-wrap: wrap;}
+  .bundle-item .actions button { background: none; border: 1px solid #e5e7eb; color: #374151; cursor: pointer; padding: 6px 12px; border-radius: 4px; font-weight: 500; transition: all 0.2s ease; font-size: 11px; white-space: nowrap; min-width: 0;}
+  .bundle-item .actions button:hover { background: #f3f4f6; color: #111827; border-color: #d1d5db;}
+  .bundle-action-section { display: flex; gap: 12px; padding: 12px; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 12px; background: white; align-items: center; justify-content: flex-start; }
+  .bundle-quantity-control { display: flex; align-items: center; background: white; border: 1px solid #d1d5db; border-radius: 6px; padding: 0; overflow: hidden; height: 40px; }
+  .bundle-quantity-control input { width: 60px; text-align: center; border: none; border-left: 1px solid #d1d5db; border-right: 1px solid #d1d5db; background: white; height: 40px; font-size: 16px; font-weight: 600; color: #111827; outline: none;}
+  .btn-add-cart { background: #20cc44 !important; color: white !important; border: none !important; border-radius: 6px !important; cursor: pointer !important; font-size: 14px !important; font-weight: 700 !important; transition: none !important; padding: 12px 24px !important; text-transform: none !important; letter-spacing: 0.025em !important; position: relative !important; overflow: hidden !important; height: 40px !important; margin-left: 12px !important; min-width: 220px !important; text-align: center !important; box-shadow: none !important; display: flex; align-items: center; justify-content: center;}
+  .btn-add-cart:hover, .btn-add-cart:active { background: #20cc44 !important; color: white !important; box-shadow: none !important; transform: none !important;}
+  .undo-removal-section { display: flex; gap: 12px; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 12px; background: #f9fafb; align-items: center; justify-content: space-between; animation: slideIn 0.3s ease-out; color: #6b7280; font-size: 13px;}
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
+  .undo-removal-section .undo-text { flex: 1; font-weight: 500;}
+  .btn-undo-removal { background: transparent; color: #374151; border: none; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.2s ease; padding: 4px 8px; border-radius: 4px;}
+  .btn-undo-removal:hover { color: #111827; background: #e5e7eb; text-decoration: underline;}
+  #removal-modal-backdrop, #bundle-modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1001; backdrop-filter: blur(4px);}
+  #removal-modal, #bundle-modal { background: white; width: 90%; max-width: 500px; padding: 24px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); font-family: 'Inter', sans-serif; text-align: center; max-height: 90vh; overflow-y: auto;}
+  #removal-modal h3, #bundle-modal h3 { margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #111827; line-height: 1.4;}
+  #removal-modal p { margin: 0 0 24px; font-size: 14px; color: #6b7280; line-height: 1.4;}
+  .removal-modal-actions, .modal-actions { display: flex; gap: 12px; justify-content: center;}
+  .removal-modal-actions button, .modal-actions button { padding: 12px 24px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s ease; font-size: 14px;}
+  #removal-confirm, #removal-cancel, #modal-save { background: #374151; color: white; }
+  #removal-confirm:hover, #removal-cancel:hover, #modal-save:hover { background: #1f2937; transform: translateY(-1px);}
+  #modal-close { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb;}
+  #modal-close:hover { background: #e5e7eb;}
+  .variant-section { margin-bottom: 20px; }
+  .variant-section h4 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: #111827; display: flex; align-items: center; gap: 6px;}
+  .color-options { display: flex; gap: 10px;}
+  .color-option { width: 40px; height: 40px; border: 2px solid #e5e7eb; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; position: relative;}
+  .color-option .color-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 1px rgba(0,0,0,0.1);}
+  .color-option.selected { border-color: #000000;}
+  .color-option:hover { transform: scale(1.05);}
+  .button-options { display: flex; gap: 6px; flex-wrap: wrap;}
+  .button-option { padding: 8px 12px; border: 2px solid #e5e7eb; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; color: #374151; background: white; font-size: 12px; font-weight: 500; min-width: 80px; text-align: center;}
+  .button-option.selected { background: #111827; color: white; border-color: #111827;}
+  .button-option:hover:not(.selected) { border-color: #9ca3af; background: #f9fafb;}
+  .size-options { display: flex; gap: 6px;}
+  .size-option { width: 40px; height: 40px; border: 2px solid #e5e7eb; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #374151; background: white; transition: all 0.2s ease;}
+  .size-option.selected { background: #111827; color: white; border-color: #111827;}
+  .size-option:hover:not(.selected) { border-color: #9ca3af; background: #f9fafb;}
+  .size-chart { font-size: 12px; color: #6b7280; text-decoration: none; margin-top: 6px; display: inline-block; transition: color 0.2s ease; cursor: pointer;}
+  .size-chart:hover { text-decoration: underline; color: #111827;}
+  /* BLOQUEIO DE VARIANTE ESGOTADA */
+  .variant-option.out-of-stock {
+    opacity: 0.5;
+    pointer-events: none;
     position: relative;
   }
-  
-  .color-option .color-circle {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 2px solid white;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+  .variant-option.out-of-stock::after {
+    content: "";
+    position: absolute;
+    width: 80%;
+    height: 2px;
+    background: #d1d5db;
+    top: 50%;
+    left: 10%;
+    transform: rotate(-45deg);
   }
-  
-  .color-option.selected {
-    border-color: #000000;
+  /* Responsivo */
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .bundle-item { flex-direction: row; padding: 12px; gap: 12px; overflow: hidden;}
+    .bundle-item .product-image { flex: 0 0 80px; width: 80px; height: 80px;}
+    .bundle-item .product-details { min-width: 0; overflow: hidden;}
+    .bundle-item .product-variant { font-size: 10px; line-height: 1.2;}
+    .bundle-item .actions { gap: 4px; margin-top: 4px;}
+    .bundle-item .actions button { font-size: 10px; padding: 4px 8px; flex: 1; max-width: calc(50% - 2px);}
+    .bundle-action-section { flex-direction: column; gap: 12px; text-align: center;}
+    .btn-add-cart { flex: 1; min-width: 120px; margin-left: 0; max-width: none;}
+    #bundle-modal { padding: 20px; margin: 16px; width: calc(100% - 32px);}
+    .variant-controls-row { flex-direction: column; gap: 16px;}
+    .button-options { flex-direction: column;}
+    .button-option { min-width: auto;}
   }
-  
-  .color-option:hover {
-    transform: scale(1.05);
-  }
-  
-  /* Button options */
-  .button-options {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-  
-  .button-option {
-    padding: 8px 12px;
-    border: 2px solid #e5e7eb;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #374151;
-    background: white;
-    font-size: 12px;
-    font-weight: 500;
-    min-width: 80px;
-    text-align: center;
-  }
-  
-  .button-option.selected {
-    background: #111827;
-    color: white;
-    border-color: #111827;
-  }
-  
-  .button-option:hover:not(.selected) {
-    border-color: #9ca3af;
-    background: #f9fafb;
-  }
-  
-  /* Size options */
-  .size-options {
-    display: flex;
-    gap: 6px;
-  }
-  
-  .size-option {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #e5e7eb;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    color: #374151;
-    background: white;
-    transition: all 0.2s ease;
-  }
-  
-  .size-option.selected { 
-    background: #111827;
-    color: white;
-    border-color: #111827;
-  }
-  
-  .size-option:hover:not(.selected) {
-    border-color: #9ca3af;
-    background: #f9fafb;
-  }
-  
-  .size-chart { 
-    font-size: 12px; 
-    color: #6b7280; 
-    text-decoration: none; 
-    margin-top: 6px;
-    display: inline-block;
-    transition: color 0.2s ease;
-    cursor: pointer;
-  }
-  
-  .size-chart:hover { 
-    text-decoration: underline; 
-    color: #111827;
-  }
-  
-  .modal-actions { 
-    text-align: right; 
-    margin-top: 24px; 
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-  }
-  
-  .modal-actions button { 
-    padding: 10px 16px; 
-    border-radius: 6px; 
-    border: none; 
-    cursor: pointer; 
-    font-weight: 600;
-    transition: all 0.2s ease;
-    font-size: 12px;
-  }
-  
-  #modal-save { 
-    background: #111827;
-    color: white; 
-  }
-  
-  #modal-save:hover {
-    background: #1f2937;
-    transform: translateY(-1px);
-  }
-  
-  #modal-close { 
-    background: #f3f4f6;
-    color: #374151; 
-    border: 1px solid #e5e7eb;
-  }
-  
-  #modal-close:hover {
-    background: #e5e7eb;
-  }
-
-  /* Popup de tabela de medidas - responsivo */
   @media (max-width: 767px) {
     .size-chart-img-desktop { display: none !important; }
     .size-chart-img-mobile { display: block !important; }
   }
-  
-  /* Loading state */
-  .btn-buy-now.loading, .btn-add-cart.loading {
-    pointer-events: none;
-    opacity: 0.7;
-  }
-  
-  .btn-buy-now.loading::after, .btn-add-cart.loading::after {
-    content: '';
-    position: absolute;
-    width: 12px;
-    height: 12px;
-    margin: auto;
-    border: 2px solid transparent;
-    border-top-color: currentColor;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  /* Responsivo */
-  @media (max-width: 600px) {
-    body { padding: 12px; }
-    
-    .bundle-item { 
-      flex-direction: row; 
-      padding: 12px;
-      gap: 12px;
-      overflow: hidden;
-    }
-    .bundle-item .product-image { 
-      flex: 0 0 80px; 
-      width: 80px; 
-      height: 80px; 
-    }
-    
-    .bundle-item .product-details {
-      min-width: 0;
-      overflow: hidden;
-    }
-    
-    .bundle-item .product-variant {
-      font-size: 10px;
-      line-height: 1.2;
-    }
-    
-    .bundle-item .actions {
-      gap: 4px;
-      margin-top: 4px;
-    }
-    
-    .bundle-item .actions button {
-      font-size: 10px;
-      padding: 4px 8px;
-      flex: 1;
-      max-width: calc(50% - 2px);
-    }
-    
-    .bundle-action-section {
-      flex-direction: column; 
-      gap: 12px; 
-      text-align: center; 
-    }
-    
-    .btn-add-cart {
-      flex: 1;
-      min-width: 120px;
-      margin-left: 0;
-      max-width: none;
-    }
-    
-    #bundle-modal {
-      padding: 20px;
-      margin: 16px;
-      width: calc(100% - 32px);
-    }
-    .variant-controls-row {
-      flex-direction: column;
-      gap: 16px;
-    }
-    .button-options {
-      flex-direction: column;
-    }
-    .button-option {
-      min-width: auto;
-    }
-  }
 </style>
-
 <script>
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded', ()=>{
   const span = document.querySelector('span[zoorix-widget="bundle-list"]');
   const container = document.getElementById('bundle-container');
   let currentItem = null;
   let bundleQuantity = 1;
-  let removedItem = null; // Para armazenar o item removido
-  let undoSection = null; // Para referenciar a seção de desfazer
+  let removedItem = null;
+  let undoSection = null;
 
   // CONFIGURAÇÃO DE DESCONTO
-  const DISCOUNT_PERCENTAGE = 15; // Variável de desconto (10, 15, 20)
+  const DISCOUNT_PERCENTAGE = 15;
   const PRICE_WITHOUT_COMPRESSION = 369.00;
   const PRICE_WITH_COMPRESSION = 429.00;
 
-  // Mapeamento completo de variantes para product_id e variant_id
+  // VARIANTES: productId e variantId
   const variantMapping = {
     'AZUL-MARINHO_CURTO (5")_SEM COMPRESSÃO_P': { productId: '8616789410020', variantId: '46313020915940' },
     'AZUL-MARINHO_CURTO (5")_SEM COMPRESSÃO_M': { productId: '8616789410020', variantId: '46313020948708' },
@@ -851,7 +338,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     'PRETO_TRADICIONAL (7")_COM COMPRESSÃO_GG': { productId: '8617970303204', variantId: '46186729668836' }
   };
 
-  // Mapeamento de imagens por variante
+  // Imagens das variantes (exemplo, pode expandir conforme necessário)
   const variantImages = {
     'AZUL-MARINHO_CURTO (5")_SEM COMPRESSÃO_P': 'https://cdn.shopify.com/s/files/1/0720/1443/0436/files/AZUL-Curto-SemCompressao-Frente_00b65c65-075b-4bb9-b46c-cff40bf5fe3a.webp?v=1751655550',
     'AZUL-MARINHO_TRADICIONAL (7")_SEM COMPRESSÃO_P': 'https://cdn.shopify.com/s/files/1/0720/1443/0436/files/AZUL-Longo-SemCompressao-Frente_f572dede-e76c-4c6c-9c93-044f9747a2d2.webp?v=1751655857',
@@ -867,23 +354,18 @@ document.addEventListener('DOMContentLoaded',()=>{
     const parts = variantText.split(' / ');
     return parts.join('_');
   }
-
   function getImageForVariant(variantText) {
     const key = getVariantKey(variantText);
-    // Usa a imagem específica ou uma padrão baseada na cor e comprimento
     const baseKey = key.split('_').slice(0, 3).join('_') + '_P';
     return variantImages[baseKey] || variantImages['AZUL-MARINHO_CURTO (5")_SEM COMPRESSÃO_P'];
   }
-
   function getVariantData(variantText) {
     const key = getVariantKey(variantText);
     return variantMapping[key] || { productId: '8616789410020', variantId: '46313020915940' };
   }
-
   function getBasePrice(variantText) {
     return variantText.includes('COM COMPRESSÃO') ? PRICE_WITH_COMPRESSION : PRICE_WITHOUT_COMPRESSION;
   }
-
   function calculatePrices(items) {
     const totalItems = items.length;
     let totalOriginal = 0;
@@ -911,56 +393,151 @@ document.addEventListener('DOMContentLoaded',()=>{
       discountPercentage: DISCOUNT_PERCENTAGE
     };
   }
-
   function updateItemPrices() {
-  const items = container.querySelectorAll('.bundle-item');
-  const priceData = calculatePrices(items);
+    const items = container.querySelectorAll('.bundle-item');
+    const priceData = calculatePrices(items);
+    items.forEach(item => {
+      const variantText = item.querySelector('.product-variant').textContent;
+      const basePrice = getBasePrice(variantText);
+      const priceInfo = item.querySelector('.price-info');
+      let finalPrice = basePrice;
+      if (priceData.hasDiscount) finalPrice = basePrice * (1 - DISCOUNT_PERCENTAGE / 100);
+      if (priceData.hasDiscount) {
+        priceInfo.innerHTML = `<span class="promo-price" style="color:#059669;font-weight:700;">R$ ${finalPrice.toFixed(2).replace('.', ',')} </span><span class="original-price">R$ ${basePrice.toFixed(2).replace('.', ',')}</span>`;
+      } else {
+        priceInfo.innerHTML = `<span class="normal-price" style="color:#111827;font-weight:700;">R$ ${basePrice.toFixed(2).replace('.', ',')}</span>`;
+      }
+      const installments = item.querySelector('.installments');
+      installments.textContent = `ou 3x de R$ ${(finalPrice/3).toFixed(2).replace('.', ',')} sem juros`;
+    });
+  }
 
-  items.forEach(item => {
-    const variantText = item.querySelector('.product-variant').textContent;
-    const basePrice = getBasePrice(variantText);
-    const priceInfo = item.querySelector('.price-info');
-    
-    let finalPrice = basePrice;
-
-    // Se tem desconto, aplica promoção do bundle
-    if (priceData.hasDiscount) {
-      finalPrice = basePrice * (1 - DISCOUNT_PERCENTAGE / 100);
+  // ----------------- BLOCO DE ESTOQUE VIA API SHOPIFY -------------------------
+  // CACHE DE PRODUTO PELA API JS (Shopify)
+  const productCache = {};
+  async function checkVariantStock(variantId, productId = null) {
+    try {
+      let productData = null;
+      if (productId && productCache[productId]) {
+        productData = productCache[productId];
+      } else if (productId) {
+        // Busca handle do produto
+        const searchRes = await fetch(`${window.Shopify.routes.root}search/suggest.json?q=id:${productId}&resources[type]=product&limit=1`);
+        if (searchRes.ok) {
+          const searchData = await searchRes.json();
+          const productResult = searchData.resources.results.products[0];
+          if (productResult) {
+            const handle = productResult.handle;
+            const prodRes = await fetch(`${window.Shopify.routes.root}products/${handle}.js`);
+            if (prodRes.ok) {
+              productData = await prodRes.json();
+              productCache[productId] = productData;
+            }
+          }
+        }
+      }
+      if (productData) {
+        const variant = productData.variants.find(v => v.id.toString() === variantId.toString());
+        if (variant) {
+          return {
+            available: variant.available,
+            inventory_quantity: variant.inventory_quantity || 0,
+            variantId: variantId,
+            productId: productId
+          };
+        }
+      }
+      return null;
+    } catch (error) {
+      console.error('Erro ao checar estoque da variante', variantId, error);
+      return null;
     }
-
-    // Mostra somente a promoção "comprando junto", não pix!
-    if (priceData.hasDiscount) {
-      priceInfo.innerHTML = `
-        <span class="promo-price" style="color:#059669;font-weight:700;">R$ ${finalPrice.toFixed(2).replace('.', ',')} </span>
-        <span class="original-price">R$ ${basePrice.toFixed(2).replace('.', ',')}</span>
-      `;
-    } else {
-      priceInfo.innerHTML = `
-        <span class="normal-price" style="color:#111827;font-weight:700;">R$ ${basePrice.toFixed(2).replace('.', ',')}</span>
-      `;
+  }
+  // Carrega estoques de todas as variantes ao iniciar
+  (async () => {
+    for (const key in variantMapping) {
+      const { productId, variantId } = variantMapping[key];
+      const stockInfo = await checkVariantStock(variantId, productId);
+      variantMapping[key].available = stockInfo ? stockInfo.available : false;
     }
+  })();
 
-    // Parcelamento SEM desconto, sempre sobre finalPrice
-    const installments = item.querySelector('.installments');
-    installments.textContent = `ou 3x de R$ ${(finalPrice/3).toFixed(2).replace('.', ',')} sem juros`;
-  });
-}
+  // Atualiza UI do popup/modal com base no estoque de variantes
+  function updateAvailabilityUI() {
+    if (!currentItem) return;
+    const selectedColor = document.querySelector('.variant-section[data-variant="color"] .variant-option.selected')?.dataset.value;
+    const selectedLength = document.querySelector('.variant-section[data-variant="comprimento"] .variant-option.selected')?.dataset.value;
+    const selectedCompressao = document.querySelector('.variant-section[data-variant="compressao"] .variant-option.selected')?.dataset.value;
 
+    // Tamanhos
+    if (selectedColor && selectedLength && selectedCompressao) {
+      document.querySelectorAll('.variant-section[data-variant="tamanho"] .variant-option').forEach(sizeOption => {
+        const sizeValue = sizeOption.dataset.value;
+        const variantKey = `${selectedColor}_${selectedLength}_${selectedCompressao}_${sizeValue}`;
+        const variantInfo = variantMapping[variantKey];
+        if (variantInfo) {
+          if (variantInfo.available === false) {
+            sizeOption.classList.add('out-of-stock');
+          } else {
+            sizeOption.classList.remove('out-of-stock');
+          }
+        }
+      });
+    }
+    // Compressão
+    if (selectedColor && selectedLength) {
+      document.querySelectorAll('.variant-section[data-variant="compressao"] .variant-option').forEach(compOption => {
+        const compValue = compOption.dataset.value;
+        let hasStock = false;
+        ['P','M','G','GG'].forEach(size => {
+          const key = `${selectedColor}_${selectedLength}_${compValue}_${size}`;
+          const info = variantMapping[key];
+          if (info && info.available) hasStock = true;
+        });
+        if (!hasStock) compOption.classList.add('out-of-stock');
+        else compOption.classList.remove('out-of-stock');
+      });
+    }
+    // Comprimento
+    if (selectedColor && selectedCompressao) {
+      document.querySelectorAll('.variant-section[data-variant="comprimento"] .variant-option').forEach(lengthOption => {
+        const lengthValue = lengthOption.dataset.value;
+        let hasStock = false;
+        ['P','M','G','GG'].forEach(size => {
+          const key = `${selectedColor}_${lengthValue}_${selectedCompressao}_${size}`;
+          const info = variantMapping[key];
+          if (info && info.available) hasStock = true;
+        });
+        if (!hasStock) lengthOption.classList.add('out-of-stock');
+        else lengthOption.classList.remove('out-of-stock');
+      });
+    }
+    // Cores
+    document.querySelectorAll('.variant-section[data-variant="color"] .variant-option').forEach(colorOption => {
+      const colorValue = colorOption.dataset.value;
+      let colorHasStock = false;
+      for (const key in variantMapping) {
+        if (key.startsWith(`${colorValue}_`) && variantMapping[key].available) {
+          colorHasStock = true;
+          break;
+        }
+      }
+      if (!colorHasStock) colorOption.classList.add('out-of-stock');
+      else colorOption.classList.remove('out-of-stock');
+    });
+  }
+  // -----------------------------------------------------------------------------
 
-  function setup(){
+  function setup() {
     const items = span.querySelectorAll('.zrx-bundle-multi-item-wrapper');
-    if(!items.length) return setTimeout(setup,100);
+    if (!items.length) return setTimeout(setup, 100);
     span.style.display = 'none';
 
-    // monta cards dos produtos
-    items.forEach((orig, index)=>{
+    items.forEach((orig, index) => {
       const pid = orig.dataset.productId;
       const variantId = orig.dataset.variantId;
       const name = orig.querySelector('.zrx-bundle-product-name a').textContent.trim();
-      const varTxt = orig.querySelector('.zrx-bundle-item-variants select')
-                        .selectedOptions[0].textContent.trim();
-
-      // Obtém a imagem específica para esta variante
+      const varTxt = orig.querySelector('.zrx-bundle-item-variants select').selectedOptions[0].textContent.trim();
       const img = getImageForVariant(varTxt);
 
       const card = document.createElement('div');
@@ -968,34 +545,24 @@ document.addEventListener('DOMContentLoaded',()=>{
       card.dataset.productId = pid;
       card.dataset.variantId = variantId;
       card.dataset.itemIndex = index;
-      
-      // Define botões de ação baseado no índice
-      const actionButtons = index === 0 
+
+      const actionButtons = index === 0
         ? '<button class="btn-change">Alterar</button>'
         : '<button class="btn-change">Alterar</button><button class="btn-remove">Remover</button>';
-      
       card.innerHTML = `
         <div class="product-image" style="background-image:url('${img}')"> </div>
         <div class="product-details">
           <a href="#" class="product-name">${name}</a>
           <div class="product-variant">${varTxt}</div>
-          <div class="price-info">
-            <!-- Preços serão calculados dinamicamente -->
-          </div>
-          <div class="installments">
-            <!-- Parcelamento será calculado dinamicamente -->
-          </div>
-          <div class="actions">
-            ${actionButtons}
-          </div>
+          <div class="price-info"></div>
+          <div class="installments"></div>
+          <div class="actions">${actionButtons}</div>
         </div>`;
       container.appendChild(card);
     });
-    
-    // Calcula preços iniciais
+
     updateItemPrices();
-    
-    // Seção consolidada de quantidade e ações
+
     const actionSection = document.createElement('div');
     actionSection.className = 'bundle-action-section';
     actionSection.innerHTML = `
@@ -1008,12 +575,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     `;
     container.appendChild(actionSection);
 
-    // --- Referências e eventos
     const bundleDecBtn = actionSection.querySelector('.bundle-dec');
     const bundleIncBtn = actionSection.querySelector('.bundle-inc');
     const bundleInput = actionSection.querySelector('#bundle-quantity-input');
     const addCartBtn = actionSection.querySelector('.btn-add-cart');
-
     bundleDecBtn.onclick = () => {
       bundleQuantity = Math.max(1, bundleQuantity - 1);
       bundleInput.value = bundleQuantity;
@@ -1026,179 +591,121 @@ document.addEventListener('DOMContentLoaded',()=>{
       bundleQuantity = Math.max(1, parseInt(bundleInput.value) || 1);
       bundleInput.value = bundleQuantity;
     };
-
-    // Eventos dos botões de ação
     addCartBtn.onclick = () => addToShopifyCart('cart');
-
-    // lógica remove/change
-    container.querySelectorAll('.bundle-item').forEach(item=>{
+    container.querySelectorAll('.bundle-item').forEach(item => {
       setupItemEvents(item);
     });
 
-    // modal logic
     const modal = document.getElementById('bundle-modal');
-    modal.querySelectorAll('.variant-option').forEach(opt=>{
-      opt.onclick=()=>{
-        const grp=opt.closest('.variant-options');
-        grp.querySelectorAll('.variant-option').forEach(o=>o.classList.remove('selected'));
+    modal.querySelectorAll('.variant-option').forEach(opt => {
+      opt.onclick = () => {
+        const grp = opt.closest('.variant-options');
+        grp.querySelectorAll('.variant-option').forEach(o => o.classList.remove('selected'));
         opt.classList.add('selected');
+        updateAvailabilityUI(); // <-- Atualiza bloqueio de estoque ao clicar!
       };
     });
-    
-    function prefillModal(txt){
-      const parts=txt.split(' / ');
-      // Limpa todas as seleções primeiro
-      modal.querySelectorAll('.variant-option').forEach(opt=>{
+
+    function prefillModal(txt) {
+      const parts = txt.split(' / ');
+      modal.querySelectorAll('.variant-option').forEach(opt => {
         opt.classList.remove('selected');
       });
-      // Seleciona apenas as opções correspondentes
-      modal.querySelectorAll('.variant-section').forEach(sec=>{
-        sec.querySelectorAll('.variant-option').forEach(opt=>{
-          if(parts.includes(opt.dataset.value)){
+      modal.querySelectorAll('.variant-section').forEach(sec => {
+        sec.querySelectorAll('.variant-option').forEach(opt => {
+          if (parts.includes(opt.dataset.value)) {
             opt.classList.add('selected');
           }
         });
       });
+      updateAvailabilityUI();
     }
-    
-    document.getElementById('modal-save').onclick=()=>{
-      if(currentItem){
-        const vals=Array.from(modal.querySelectorAll('.variant-option.selected'))
-          .map(opt=>opt.dataset.value);
+    document.getElementById('modal-save').onclick = () => {
+      if (currentItem) {
+        const vals = Array.from(modal.querySelectorAll('.variant-option.selected')).map(opt => opt.dataset.value);
         const newVariantText = vals.join(' / ');
-        
-        // Atualiza product_id e variant_id baseado na nova variante
         const variantData = getVariantData(newVariantText);
         currentItem.dataset.productId = variantData.productId;
         currentItem.dataset.variantId = variantData.variantId;
-        
         currentItem.querySelector('.product-variant').textContent = newVariantText;
-        
-        // Atualiza a imagem baseada na nova variante
         const newImg = getImageForVariant(newVariantText);
         currentItem.querySelector('.product-image').style.backgroundImage = `url('${newImg}')`;
-        
-        // Recalcula preços após alteração
         updateItemPrices();
       }
-      document.getElementById('bundle-modal-backdrop').style.display='none';
+      document.getElementById('bundle-modal-backdrop').style.display = 'none';
       currentItem = null;
     };
-    
-    document.getElementById('modal-close').onclick=()=>{
-      document.getElementById('bundle-modal-backdrop').style.display='none';
+    document.getElementById('modal-close').onclick = () => {
+      document.getElementById('bundle-modal-backdrop').style.display = 'none';
       currentItem = null;
     };
-
-    // Fechar modal clicando no backdrop
-    document.getElementById('bundle-modal-backdrop').onclick=(e)=>{
-      if(e.target === document.getElementById('bundle-modal-backdrop')){
-        document.getElementById('bundle-modal-backdrop').style.display='none';
+    document.getElementById('bundle-modal-backdrop').onclick = (e) => {
+      if (e.target === document.getElementById('bundle-modal-backdrop')) {
+        document.getElementById('bundle-modal-backdrop').style.display = 'none';
         currentItem = null;
       }
     };
-
-    // Fechar modal de remoção clicando no backdrop
-    document.getElementById('removal-modal-backdrop').onclick=(e)=>{
-      if(e.target === document.getElementById('removal-modal-backdrop')){
-        document.getElementById('removal-modal-backdrop').style.display='none';
+    document.getElementById('removal-modal-backdrop').onclick = (e) => {
+      if (e.target === document.getElementById('removal-modal-backdrop')) {
+        document.getElementById('removal-modal-backdrop').style.display = 'none';
       }
     };
 
-    // Função para mostrar seção de desfazer - estilo sutil e persistente
     function showUndoSection() {
-      // Remove seção de desfazer existente se houver
-      if (undoSection) {
-        undoSection.remove();
-      }
-      
+      if (undoSection) undoSection.remove();
       undoSection = document.createElement('div');
       undoSection.className = 'undo-removal-section';
-      undoSection.innerHTML = `
-        <div class="undo-text">Item removido</div>
-        <button class="btn-undo-removal">Desfazer remoção</button>
-      `;
-      
-      // Insere antes da seção de ações
+      undoSection.innerHTML = `<div class="undo-text">Item removido</div><button class="btn-undo-removal">Desfazer remoção</button>`;
       const actionSection = container.querySelector('.bundle-action-section');
       container.insertBefore(undoSection, actionSection);
-      
-      // Configura evento do botão desfazer
       undoSection.querySelector('.btn-undo-removal').onclick = () => {
         if (removedItem) {
-          // Restaura o item removido
           if (removedItem.nextSibling) {
             removedItem.parentNode.insertBefore(removedItem.element, removedItem.nextSibling);
           } else {
             removedItem.parentNode.appendChild(removedItem.element);
           }
-          
-          // Reaplica eventos ao item restaurado
           setupItemEvents(removedItem.element);
-          
-          // Remove seção de desfazer
           undoSection.remove();
           undoSection = null;
           removedItem = null;
-          
-          // Recalcula preços após restauração
           updateItemPrices();
         }
       };
-      
-      // Botão persistente - não remove automaticamente
     }
-
-    // Função para configurar eventos de um item
     function setupItemEvents(item) {
       const removeBtn = item.querySelector('.btn-remove');
       if (removeBtn) {
-        removeBtn.onclick = ()=>{
-          // Mostra modal de confirmação
+        removeBtn.onclick = () => {
           const itemIndex = parseInt(item.dataset.itemIndex) + 1;
           document.getElementById('removal-item-number').textContent = itemIndex;
-          document.getElementById('removal-modal-backdrop').style.display='flex';
-          
-          // Configura eventos do modal de confirmação
+          document.getElementById('removal-modal-backdrop').style.display = 'flex';
           document.getElementById('removal-confirm').onclick = () => {
-            // Remove o item e armazena para desfazer
-            removedItem = {
-              element: item.cloneNode(true),
-              nextSibling: item.nextSibling,
-              parentNode: item.parentNode
-            };
-            
+            removedItem = { element: item.cloneNode(true), nextSibling: item.nextSibling, parentNode: item.parentNode };
             item.remove();
-            document.getElementById('removal-modal-backdrop').style.display='none';
-            
-            // Recalcula preços após remoção
+            document.getElementById('removal-modal-backdrop').style.display = 'none';
             updateItemPrices();
-            
-            // Mostra seção de desfazer
             showUndoSection();
           };
-          
           document.getElementById('removal-cancel').onclick = () => {
-            document.getElementById('removal-modal-backdrop').style.display='none';
+            document.getElementById('removal-modal-backdrop').style.display = 'none';
           };
         };
       }
-      
       const changeBtn = item.querySelector('.btn-change');
       if (changeBtn) {
-        changeBtn.onclick = ()=>{
+        changeBtn.onclick = () => {
           currentItem = item;
           prefillModal(item.querySelector('.product-variant').textContent);
-          document.getElementById('bundle-modal-backdrop').style.display='flex';
+          document.getElementById('bundle-modal-backdrop').style.display = 'flex';
         };
       }
     }
 
-    // Função para adicionar ao carrinho do Shopify (versão melhorada)
+    // --- ADICIONA AO CARRINHO SHOPIFY ---
     function addToShopifyCart(action = 'cart') {
       const targetBtn = addCartBtn;
       const items = [];
-      
       container.querySelectorAll('.bundle-item').forEach(item => {
         const variantId = item.dataset.variantId;
         if (variantId) {
@@ -1208,53 +715,35 @@ document.addEventListener('DOMContentLoaded',()=>{
           });
         }
       });
-
       if (items.length === 0) {
         alert('Nenhum item para adicionar ao carrinho.');
         return;
       }
-
-      // Estado de loading
       targetBtn.classList.add('loading');
       const originalText = targetBtn.textContent;
       targetBtn.textContent = 'Adicionando...';
-
-      // Verifica se estamos em um ambiente Shopify
       if (typeof window.Shopify === 'undefined' || !window.Shopify.routes) {
-        // Simulação para demonstração
         setTimeout(() => {
           targetBtn.classList.remove('loading');
           targetBtn.textContent = originalText;
-          const message = `Bundle(s) adicionado(s) ao carrinho com sucesso! Quantidade: ${bundleQuantity} (Simulação)`;
-          alert(message);
-          console.log('Itens que seriam processados:', items);
+          alert('Simulação - bundle adicionado');
+          console.log('Simulação:', items);
         }, 1500);
         return;
       }
-
-      // Adiciona os itens ao carrinho do Shopify
       fetch(window.Shopify.routes.root + 'cart/add.js', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json', },
         body: JSON.stringify({ items: items })
       })
       .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
       })
       .then(data => {
-        console.log('Produtos adicionados ao carrinho:', data);
         targetBtn.classList.remove('loading');
-        targetBtn.textContent = originalText;
-        
-        // Feedback visual de sucesso
         targetBtn.textContent = '✓ Adicionado!';
         targetBtn.style.background = '#059669';
-        
         setTimeout(() => {
           targetBtn.textContent = originalText;
           targetBtn.style.background = '';
@@ -1268,7 +757,6 @@ document.addEventListener('DOMContentLoaded',()=>{
       });
     }
   }
-
   setup();
 });
 
@@ -1277,22 +765,16 @@ function openSizeChart() {
   const popup = document.getElementById("size-chart-popup");
   if (popup) popup.style.display = "flex";
 }
-
 function closeSizeChart() {
   const popup = document.getElementById("size-chart-popup");
   if (popup) popup.style.display = "none";
 }
-
-// Eventos do popup de tabela de medidas
 document.addEventListener("DOMContentLoaded", () => {
-  // Botão fechar e clique fora do conteúdo
   const closeBtn = document.getElementById("size-chart-close");
   const popup = document.getElementById("size-chart-popup");
-  
   if (closeBtn) {
     closeBtn.addEventListener("click", closeSizeChart);
   }
-  
   if (popup) {
     popup.addEventListener("click", function (e) {
       if (e.target.id === "size-chart-popup") closeSizeChart();
